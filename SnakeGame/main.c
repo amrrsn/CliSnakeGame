@@ -25,9 +25,9 @@
 #define EXIT 4
 
 #define BOOLSOUND false
-#define HTPSOUND "C:\\Users\\test\\Documents\\FreshmanCollege\\SpringSemester\\COS130\\FinalProject\\GameAudio\\htpSound.wav"
-#define MMSOUND "C:\\Users\\test\\Documents\\FreshmanCollege\\SpringSemester\\COS130\\FinalProject\\GameAudio\\mainMenuSound.wav"
-#define PLAYSOUND "C:\\Users\\test\\Documents\\FreshmanCollege\\SpringSemester\\COS130\\FinalProject\\GameAudio\\playSound.wav"
+#define HTPSOUND "./GameAudio/htpSound.wav"
+#define MMSOUND "./GameAudio/mainMenuSound.wav"
+#define PLAYSOUND "./GameAudio/playSound.wav"
 
 struct coordinate
 {
@@ -60,9 +60,9 @@ void controlsScreen(int midx, int midy);
 void htpScreen(int midx, int midy);
 
 void gameScreen(int maxx, int maxy, struct snake *playerSnake);
-bool borderHandling(int topBarrier, int rightBarrier, int bottomBarrier, int leftBarrier, struct snake *playerSnake, bool initSnake, bool wasPaused);
+bool borderHandling(int topBarrier, int rightBarrier, int bottomBarrier, int leftBarrier,
+                    struct snake *playerSnake, bool initSnake, bool wasPaused);
 void snakeFoodCheck(int foodPos[], struct snake *playerSnake, int maxx, int maxy);
-void snakePositionControl(struct snake *playerSnake, struct coordinate body[], clock_t *lastUpdateTime);
 void snakeUpdater(struct snake *playerSnake, bool *initSnake, clock_t *lastUpdateTime, bool *wasPaused);
 bool delayUpdate(clock_t *lastUpdateTime);
 bool pauseScreen();
@@ -146,28 +146,32 @@ void gameScreen(int maxx, int maxy, struct snake *playerSnake)
             wasPaused = pauseScreen();
             break;
         case UP:
-            if(playerSnake->currentHeadDir != DOWN && (clock() - lastKeyPressTime) >= CLOCKS_PER_SEC/k)
+            if(playerSnake->currentHeadDir != DOWN
+               && (clock() - lastKeyPressTime) >= CLOCKS_PER_SEC/k)
             {
                 playerSnake->currentHeadDir = UP;
                 lastKeyPressTime = clock();
             }
             break;
         case DOWN:
-            if(playerSnake->currentHeadDir != UP && (clock() - lastKeyPressTime) >= CLOCKS_PER_SEC/k)
+            if(playerSnake->currentHeadDir != UP
+               && (clock() - lastKeyPressTime) >= CLOCKS_PER_SEC/k)
             {
                 playerSnake->currentHeadDir = DOWN;
                 lastKeyPressTime = clock();
             }
             break;
         case LEFT:
-            if(playerSnake->currentHeadDir != RIGHT && (clock() - lastKeyPressTime) >= CLOCKS_PER_SEC/k)
+            if(playerSnake->currentHeadDir != RIGHT
+               && (clock() - lastKeyPressTime) >= CLOCKS_PER_SEC/k)
             {
                 playerSnake->currentHeadDir = LEFT;
                 lastKeyPressTime = clock();
             }
             break;
         case RIGHT:
-            if(playerSnake->currentHeadDir != LEFT && (clock() - lastKeyPressTime) >= CLOCKS_PER_SEC/k)
+            if(playerSnake->currentHeadDir != LEFT
+               && (clock() - lastKeyPressTime) >= CLOCKS_PER_SEC/k)
             {
                 playerSnake->currentHeadDir = RIGHT;
                 lastKeyPressTime = clock();
@@ -175,7 +179,8 @@ void gameScreen(int maxx, int maxy, struct snake *playerSnake)
             break;
         }
 
-        isDead = borderHandling(topBarrier, rightBarrier, bottomBarrier, leftBarrier, playerSnake, initSnake, wasPaused);
+        isDead = borderHandling(topBarrier, rightBarrier,
+                                bottomBarrier, leftBarrier, playerSnake, initSnake, wasPaused);
         snakeFoodCheck(foodPos, playerSnake, maxx, maxy);
         snakeUpdater(playerSnake, iSP, luPtr, wPP);
     }
@@ -227,7 +232,7 @@ void deathScreen(struct snake *playerSnake)
             {
                 scanning = false;
                 FILE *fp;
-                fp = fopen("./ExtraFiles/HighScores.bin", "a");
+                fp = fopen("./ExtraFiles/HighScores.bin", "ab");
 
                 if(playerName[0] == ' ')
                 {
@@ -265,8 +270,10 @@ void highScoresScreen()
     struct file *highScoresData;
     highScoresData = (struct file *)malloc(sizeof(struct file) * 11);
 
+
+
     FILE *fp;
-    fp = fopen("./ExtraFiles/HighScores.bin", "r");
+    fp = fopen("./ExtraFiles/HighScores.bin", "rb");
 
 
     fread(highScoresData, sizeof(struct file), 11, fp);
@@ -274,13 +281,16 @@ void highScoresScreen()
     mvaddstr(maxy/2 - 7, maxx/2 - 5, "Highscores");
     for(int i = 0; i < 10; i++)
     {
-        mvprintw(maxy/2 - 6 + i, maxx/2 - 5, "%d: %s %d", i, (highScoresData + (i))->userName, (highScoresData + (i))->userScore);
+        mvprintw(maxy/2 - 6 + i, maxx/2 - 5, "%d: %s %d", i,
+                 (highScoresData + (i))->userName, (highScoresData + (i))->userScore);
     }
 
+    fclose(fp);
     getch();
 }
 
-bool borderHandling(int topBarrier, int rightBarrier, int bottomBarrier, int leftBarrier, struct snake *playerSnake, bool initSnake, bool wasPaused)
+bool borderHandling(int topBarrier, int rightBarrier, int bottomBarrier,
+                    int leftBarrier, struct snake *playerSnake, bool initSnake, bool wasPaused)
 {
     if(initSnake == true || wasPaused == true)
     {
@@ -312,13 +322,15 @@ bool borderHandling(int topBarrier, int rightBarrier, int bottomBarrier, int lef
         attroff(COLOR_PAIR(1));
     }
 
-    if((playerSnake->body[0].x >= rightBarrier) || (playerSnake->body[0].x <= leftBarrier) || (playerSnake->body[0].y <= topBarrier) || (playerSnake->body[0].y >= bottomBarrier))
+    if((playerSnake->body[0].x >= rightBarrier) || (playerSnake->body[0].x <= leftBarrier)
+       || (playerSnake->body[0].y <= topBarrier) || (playerSnake->body[0].y >= bottomBarrier))
         return true;
     else
     {
         for(int i = 3; i < playerSnake->length - 1; i++)
         {
-            if(playerSnake->body[0].x == playerSnake->body[i].x && playerSnake->body[0].y == playerSnake->body[i].y)
+            if(playerSnake->body[0].x == playerSnake->body[i].x
+               && playerSnake->body[0].y == playerSnake->body[i].y)
                 return true;
 
         }
@@ -343,7 +355,8 @@ void snakeFoodCheck(int foodPos[], struct snake *playerSnake, int maxx, int maxy
     attroff(COLOR_PAIR(FRUITCOLOR));
 }
 
-void snakeUpdater(struct snake *playerSnake, bool *initSnake, clock_t *lastUpdateTime, bool *wasPaused)
+void snakeUpdater(struct snake *playerSnake,
+                  bool *initSnake, clock_t *lastUpdateTime, bool *wasPaused)
 {
     if(delayUpdate(lastUpdateTime) || *initSnake || *wasPaused)
     {
@@ -373,7 +386,8 @@ void snakeUpdater(struct snake *playerSnake, bool *initSnake, clock_t *lastUpdat
             mvaddch(playerSnake->body[i].y, playerSnake->body[i].x, '#');
         }
 
-        mvaddch(playerSnake->body[playerSnake->length - 1].y, playerSnake->body[playerSnake->length - 1].x, ' ');
+        mvaddch(playerSnake->body[playerSnake->length - 1].y,
+                playerSnake->body[playerSnake->length - 1].x, ' ');
 
         for(int i = playerSnake->length - 1; i > 0; i--)
         {
@@ -686,3 +700,4 @@ void initCurses(void)
     if(has_colors())
         start_color();      // enables coloring the terminal
 }
+
